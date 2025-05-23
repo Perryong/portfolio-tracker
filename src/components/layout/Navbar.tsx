@@ -30,6 +30,11 @@ export function Navbar() {
             <LineChart className="h-4 w-4 mr-1" />
             Historical Data
           </Link>
+          <Link to="/markets" className="transition-colors hover:text-foreground/80 flex items-center">
+            <LineChart className="h-4 w-4 mr-1" />
+            Markets
+          </Link>
+
         </nav>
 
         <div className="flex items-center">
