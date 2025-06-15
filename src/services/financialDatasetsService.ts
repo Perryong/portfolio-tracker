@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 
 export interface FinancialSnapshot {
   ticker: string;
@@ -46,40 +47,22 @@ export const fetchFinancialData = async (ticker: string): Promise<FinancialSnaps
   console.log(`Attempting to fetch financial data for ${ticker}`);
   
   try {
-    // Use the Supabase Edge Function with proper authorization
-    const functionUrl = `https://omkhpyvxcgsyuiuhnxom.supabase.co/functions/v1/financial-data?ticker=${ticker}`;
-    console.log('Edge Function URL:', functionUrl);
+    // Use the Supabase client to invoke the Edge Function
+    const { data, error } = await supabase.functions.invoke('financial-data', {
+      body: { ticker }
+    });
     
-    const options = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-      }
-    };
-    
-    console.log('Request options:', options);
-
-    const response = await fetch(functionUrl, options);
-    
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-    
-    if (!response.ok) {
-      console.error(`Edge Function request failed with status ${response.status}: ${response.statusText}`);
-      
-      // Try to get more error details
-      const errorText = await response.text();
-      console.error('Error response body:', errorText);
-      
-      throw new Error(`Edge Function request failed with status ${response.status}: ${response.statusText}`);
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw new Error(`Failed to fetch financial data: ${error.message}`);
     }
     
-    const data: FinancialSnapshot = await response.json();
-    console.log('Received financial data:', data);
+    if (!data) {
+      throw new Error('No data returned from financial data service');
+    }
     
-    return data;
+    console.log('Received financial data:', data);
+    return data as FinancialSnapshot;
   } catch (error) {
     console.error(`Error fetching financial data for ${ticker}:`, error);
     

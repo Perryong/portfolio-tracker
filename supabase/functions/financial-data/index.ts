@@ -14,12 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const ticker = url.searchParams.get('ticker');
+    // Get ticker from request body instead of query parameter
+    const { ticker } = await req.json();
 
     if (!ticker) {
       return new Response(
-        JSON.stringify({ error: 'Ticker parameter is required' }),
+        JSON.stringify({ error: 'Ticker parameter is required in request body' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
