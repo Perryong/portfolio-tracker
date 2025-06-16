@@ -1,8 +1,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchHistoricalStockData } from "@/services/alphaVantageService";
-import { calculateRiskMetrics, calculateTechnicalIndicators, RiskMetrics, TechnicalIndicators } from "@/services/riskAnalysisService";
-import { generateQuantitativeRecommendation, QuantitativeRecommendation } from "@/services/quantAnalysisService";
+import { calculateRiskMetrics, calculateTechnicalIndicators } from "@/services/riskAnalysisService";
+import { RiskMetrics, TechnicalIndicators } from "@/types/technicalAnalysis";
+import { generateQuantitativeRecommendation } from "@/services/quantAnalysisService";
+import { QuantitativeRecommendation } from "@/types/quantitativeAnalysis";
 import { FinancialSnapshot } from "@/services/financialDatasetsService";
 
 export function useRiskAnalysis(symbol: string, financialData?: FinancialSnapshot) {

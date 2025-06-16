@@ -1,8 +1,9 @@
 import { TechnicalIndicators, TechnicalSignals, FundamentalSignals, analyzeTechnicalSignals } from "./riskAnalysisService";
 import { TimeSeriesDataPoint } from "./alphaVantageService";
 import { FinancialSnapshot } from "./financialDatasetsService";
+import { QuantitativeRecommendation } from "@/types/quantitativeAnalysis";
 
-export interface QuantitativeRecommendation {
+export interface QuantitativeRecommendationOld {
   technicalScore: number;
   fundamentalScore: number;
   riskAdjustedScore: number;
@@ -40,31 +41,234 @@ export const analyzeFundamentalSignals = (financialData: FinancialSnapshot): Fun
 };
 
 /**
- * Calculate technical analysis score (0-100)
+ * Generate technical analysis insights and rationale
  */
-export const calculateTechnicalScore = (signals: TechnicalSignals): number => {
+const generateTechnicalAnalysis = (technicalSignals: TechnicalSignals, technicalIndicators: TechnicalIndicators) => {
+  const rationale: string[] = [];
+  const insights = {
+    trendDirection: "",
+    momentumStrength: "",
+    volumeConfirmation: "",
+    volatilityContext: ""
+  };
+
+  // Advanced technical rationale
+  if (technicalIndicators.advancedSignals) {
+    const advSig = technicalIndicators.advancedSignals;
+    
+    if (advSig.signal === "bullish") {
+      rationale.push(`✅ Multi-strategy analysis shows ${Math.round(advSig.confidence * 100)}% bullish confidence`);
+      insights.trendDirection = `Strong bullish trend with ${Math.round(advSig.confidence * 100)}% confidence`;
+    } else if (advSig.signal === "bearish") {
+      rationale.push(`❌ Multi-strategy analysis shows ${Math.round(advSig.confidence * 100)}% bearish confidence`);
+      insights.trendDirection = `Bearish trend with ${Math.round(advSig.confidence * 100)}% confidence`;
+    } else {
+      insights.trendDirection = "Neutral/sideways trend";
+    }
+    
+    // Strategy-specific insights
+    if (advSig.strategies.trend_following.signal === "bullish" && advSig.strategies.trend_following.confidence > 0.7) {
+      rationale.push("✅ Strong trend following signals with ADX confirmation");
+    }
+    
+    if (advSig.strategies.mean_reversion.signal === "bullish" && advSig.strategies.mean_reversion.confidence > 0.6) {
+      rationale.push("✅ Mean reversion opportunity detected - price oversold");
+    }
+    
+    if (advSig.strategies.momentum.signal === "bearish" && advSig.strategies.momentum.confidence > 0.6) {
+      rationale.push("❌ Negative momentum across multiple timeframes");
+      insights.momentumStrength = "Weak momentum with bearish confirmation";
+    } else if (advSig.strategies.momentum.signal === "bullish") {
+      insights.momentumStrength = "Strong bullish momentum";
+    } else {
+      insights.momentumStrength = "Neutral momentum";
+    }
+    
+    if (technicalIndicators.hurstExponent && technicalIndicators.hurstExponent < 0.4) {
+      rationale.push("✅ Hurst exponent indicates mean-reverting behavior");
+    }
+  } else {
+    // Fallback traditional rationale
+    if (!technicalSignals.priceVsMovingAverages.aboveSma20) {
+      rationale.push("❌ Price below 20-day moving average - short-term bearish");
+    }
+    if (!technicalSignals.priceVsMovingAverages.aboveSma50) {
+      rationale.push("❌ Price below 50-day moving average - medium-term bearish");
+    }
+    if (technicalSignals.momentum.macdBearish) {
+      rationale.push("❌ MACD showing bearish momentum divergence");
+    }
+    if (technicalSignals.momentum.rsiOverbought) {
+      rationale.push("❌ RSI overbought (>70) - potential reversal");
+    }
+    if (technicalSignals.momentum.rsiOversold) {
+      rationale.push("✅ RSI oversold (<30) - potential bounce");
+    }
+  }
+
+  // Volume analysis
+  if (technicalSignals.volume.aboveAverage) {
+    rationale.push("✅ Above-average volume confirming price movement");
+    insights.volumeConfirmation = "Strong volume confirmation";
+  } else {
+    insights.volumeConfirmation = "Limited volume confirmation";
+  }
+
+  // Volatility context
+  if (technicalSignals.volatility.nearUpperBand) {
+    rationale.push("❌ Price near Bollinger Band upper limit - potential resistance");
+    insights.volatilityContext = "High volatility zone - near resistance";
+  } else if (technicalSignals.volatility.nearLowerBand) {
+    rationale.push("✅ Price near Bollinger Band lower limit - potential support");
+    insights.volatilityContext = "High volatility zone - near support";
+  } else {
+    insights.volatilityContext = "Normal volatility range";
+  }
+
+  return { rationale, insights };
+};
+
+/**
+ * Generate fundamental analysis insights and rationale
+ */
+const generateFundamentalAnalysis = (fundamentalSignals: FundamentalSignals, financialData: FinancialSnapshot) => {
+  const rationale: string[] = [];
+  const insights = {
+    valuation: "",
+    growth: "",
+    profitability: "",
+    financialHealth: ""
+  };
+
+  // Valuation analysis
+  if (fundamentalSignals.valuation.pegOvervalued) {
+    rationale.push("🚨 PEG Ratio severely overvalued (>2.0) - growth not justifying price");
+    insights.valuation = "Significantly overvalued based on growth metrics";
+  } else if (fundamentalSignals.valuation.peOvervalued) {
+    rationale.push("⚠️ P/E Ratio elevated (>25) - premium valuation");
+    insights.valuation = "Premium valuation with elevated P/E ratio";
+  } else {
+    insights.valuation = "Reasonable valuation metrics";
+  }
+
+  if (fundamentalSignals.valuation.pbOvervalued) {
+    rationale.push("⚠️ Price-to-Book ratio high (>5) - asset premium");
+  }
+
+  // Growth analysis
+  if (!fundamentalSignals.growth.hasGrowth) {
+    rationale.push("🚨 Zero or negative revenue growth - business stagnation");
+    insights.growth = "No growth or declining business metrics";
+  } else if (fundamentalSignals.growth.strongGrowth) {
+    rationale.push("✅ Strong revenue growth (>10%) - expanding business");
+    insights.growth = "Strong growth trajectory across key metrics";
+  } else {
+    rationale.push("✅ Positive revenue growth (>2%) - steady expansion");
+    insights.growth = "Moderate but consistent growth";
+  }
+
+  // Profitability analysis
+  if (fundamentalSignals.profitability.strongMargins) {
+    rationale.push("✅ Excellent profit margins - efficient operations");
+    insights.profitability = "Strong operational efficiency and pricing power";
+  } else {
+    insights.profitability = "Moderate profitability with room for improvement";
+  }
+
+  if (fundamentalSignals.profitability.goodRoe) {
+    rationale.push("✅ Strong Return on Equity (>15%) - effective capital use");
+  } else {
+    rationale.push("⚠️ Below-average Return on Equity - capital efficiency concerns");
+  }
+
+  // Financial health analysis
+  if (fundamentalSignals.liquidity.liquidityRisk) {
+    rationale.push("🚨 Current ratio below 1.0 - short-term liquidity risk");
+    insights.financialHealth = "Potential liquidity constraints and financial stress";
+  } else {
+    insights.financialHealth = "Adequate liquidity and financial stability";
+  }
+
+  if (fundamentalSignals.liquidity.debtConcern) {
+    rationale.push("⚠️ High debt-to-equity ratio (>0.5) - leverage concerns");
+  } else {
+    rationale.push("✅ Conservative debt levels - financial flexibility");
+  }
+
+  // Add specific financial metrics context
+  if (financialData.gross_margin > 0.6) {
+    rationale.push("✅ Exceptional gross margins (>60%) - strong pricing power");
+  }
+
+  if (financialData.operating_margin > 0.25) {
+    rationale.push("✅ Superior operating margins (>25%) - operational excellence");
+  }
+
+  return { rationale, insights };
+};
+
+/**
+ * Calculate enhanced technical analysis score using advanced signals
+ */
+export const calculateTechnicalScore = (signals: TechnicalSignals, technicalIndicators: TechnicalIndicators): number => {
   let score = 50; // Neutral starting point
   
-  // Moving Average Signals (30 points)
-  const maSignals = signals.priceVsMovingAverages;
-  if (maSignals.aboveSma200) score += 10;
-  if (maSignals.aboveSma50) score += 8;
-  if (maSignals.aboveSma20) score += 7;
-  if (maSignals.aboveEma50) score += 3;
-  if (maSignals.aboveEma20) score += 2;
-  
-  // Momentum Signals (25 points)
-  if (signals.momentum.rsiOversold) score += 15;
-  if (signals.momentum.rsiOverbought) score -= 15;
-  if (signals.momentum.macdBullish) score += 10;
-  if (signals.momentum.macdBearish) score -= 10;
-  
-  // Volume Confirmation (10 points)
-  if (signals.volume.aboveAverage) score += 10;
-  
-  // Volatility Context (15 points)
-  if (signals.volatility.nearLowerBand && signals.momentum.rsiOversold) score += 15;
-  if (signals.volatility.nearUpperBand && signals.momentum.rsiOverbought) score -= 15;
+  // Advanced signals weight (40 points)
+  if (technicalIndicators.advancedSignals) {
+    const advancedSignal = technicalIndicators.advancedSignals;
+    const confidence = advancedSignal.confidence;
+    
+    if (advancedSignal.signal === "bullish") {
+      score += confidence * 40;
+    } else if (advancedSignal.signal === "bearish") {
+      score -= confidence * 40;
+    }
+    
+    // Strategy-specific bonuses
+    const strategies = advancedSignal.strategies;
+    
+    // Trend following strength
+    if (strategies.trend_following.signal === "bullish" && strategies.trend_following.confidence > 0.7) {
+      score += 10;
+    } else if (strategies.trend_following.signal === "bearish" && strategies.trend_following.confidence > 0.7) {
+      score -= 10;
+    }
+    
+    // Momentum confirmation
+    if (strategies.momentum.signal === "bullish" && strategies.momentum.confidence > 0.6) {
+      score += 8;
+    } else if (strategies.momentum.signal === "bearish" && strategies.momentum.confidence > 0.6) {
+      score -= 8;
+    }
+    
+    // Mean reversion opportunities
+    if (strategies.mean_reversion.signal === "bullish" && strategies.mean_reversion.confidence > 0.6) {
+      score += 7;
+    } else if (strategies.mean_reversion.signal === "bearish" && strategies.mean_reversion.confidence > 0.6) {
+      score -= 7;
+    }
+  } else {
+    // Fallback to traditional signals if advanced signals are not available
+    const maSignals = signals.priceVsMovingAverages;
+    if (maSignals.aboveSma200) score += 10;
+    if (maSignals.aboveSma50) score += 8;
+    if (maSignals.aboveSma20) score += 7;
+    if (maSignals.aboveEma50) score += 3;
+    if (maSignals.aboveEma20) score += 2;
+    
+    // Momentum Signals (25 points)
+    if (signals.momentum.rsiOversold) score += 15;
+    if (signals.momentum.rsiOverbought) score -= 15;
+    if (signals.momentum.macdBullish) score += 10;
+    if (signals.momentum.macdBearish) score -= 10;
+    
+    // Volume Confirmation (10 points)
+    if (signals.volume.aboveAverage) score += 10;
+    
+    // Volatility Context (15 points)
+    if (signals.volatility.nearLowerBand && signals.momentum.rsiOversold) score += 15;
+    if (signals.volatility.nearUpperBand && signals.momentum.rsiOverbought) score -= 15;
+  }
   
   return Math.max(0, Math.min(100, score));
 };
@@ -97,7 +301,7 @@ export const calculateFundamentalScore = (signals: FundamentalSignals): number =
 };
 
 /**
- * Generate quantitative recommendation
+ * Generate enhanced quantitative recommendation with separated analysis
  */
 export const generateQuantitativeRecommendation = (
   prices: TimeSeriesDataPoint[],
@@ -108,7 +312,7 @@ export const generateQuantitativeRecommendation = (
   const technicalSignals = analyzeTechnicalSignals(prices, technicalIndicators);
   const fundamentalSignals = analyzeFundamentalSignals(financialData);
   
-  const technicalScore = calculateTechnicalScore(technicalSignals);
+  const technicalScore = calculateTechnicalScore(technicalSignals, technicalIndicators);
   const fundamentalScore = calculateFundamentalScore(fundamentalSignals);
   
   // Risk-adjusted score (weighted: 40% technical, 50% fundamental, 10% risk)
@@ -123,32 +327,41 @@ export const generateQuantitativeRecommendation = (
   else if (riskAdjustedScore >= 25) recommendation = "WEAK_SELL";
   else recommendation = "SELL";
   
-  // Generate verdicts and rationale
+  // Generate verdicts
   const technicalVerdict = technicalScore >= 60 ? "BULLISH" : technicalScore >= 40 ? "NEUTRAL" : "BEARISH";
   const fundamentalVerdict = fundamentalScore >= 60 ? "BUY" : fundamentalScore >= 40 ? "HOLD" : "SELL/AVOID";
   
-  const rationale: string[] = [];
+  // Generate separated analysis
+  const technicalAnalysis = generateTechnicalAnalysis(technicalSignals, technicalIndicators);
+  const fundamentalAnalysis = generateFundamentalAnalysis(fundamentalSignals, financialData);
   
-  // Technical rationale
-  if (!technicalSignals.priceVsMovingAverages.aboveSma20) rationale.push("❌ Price below key moving averages");
-  if (technicalSignals.momentum.macdBearish) rationale.push("❌ MACD showing bearish momentum");
-  if (technicalIndicators.ema50 && technicalIndicators.ema20 && technicalIndicators.ema50 > technicalIndicators.ema20) {
-    rationale.push("❌ EMA(50) > EMA(20) - bearish crossover setup");
+  // Add risk context
+  if (riskMetrics.sharpeRatio > 1) {
+    technicalAnalysis.rationale.push("✅ Excellent risk-adjusted returns (Sharpe > 1)");
   }
   
-  // Fundamental rationale
-  if (fundamentalSignals.valuation.pegOvervalued) rationale.push("🚨 PEG Ratio severely overvalued (>2.0)");
-  if (!fundamentalSignals.growth.hasGrowth) rationale.push("🚨 Zero/minimal growth metrics");
-  if (fundamentalSignals.liquidity.liquidityRisk) rationale.push("🚨 Current ratio below 1.0 - liquidity risk");
-  if (fundamentalSignals.profitability.strongMargins) rationale.push("✅ Strong profit margins");
-  if (riskMetrics.sharpeRatio > 1) rationale.push("✅ Excellent Sharpe ratio");
-  
-  // Generate alternative strategy
+  // Generate alternative strategy based on advanced signals
   let alternativeStrategy = "";
-  if (recommendation === "SELL" || recommendation === "WEAK_SELL") {
-    alternativeStrategy = `Wait for RSI < 30 (oversold) for potential bounce trade. Target entry below key support levels.`;
-  } else if (recommendation === "HOLD") {
-    alternativeStrategy = `Monitor for breakout above resistance or improved fundamentals.`;
+  if (technicalIndicators.advancedSignals) {
+    const advSig = technicalIndicators.advancedSignals;
+    
+    if (recommendation === "SELL" || recommendation === "WEAK_SELL") {
+      if (advSig.strategies.mean_reversion.confidence > 0.6) {
+        alternativeStrategy = `Consider mean reversion trade: Wait for RSI < 30 for potential bounce entry.`;
+      } else {
+        alternativeStrategy = `Trend following approach: Wait for trend reversal confirmation before entry.`;
+      }
+    } else if (recommendation === "HOLD") {
+      alternativeStrategy = `Monitor volatility regime and momentum shifts for improved entry/exit timing.`;
+    } else {
+      alternativeStrategy = `Consider scaling into position based on momentum and volatility signals.`;
+    }
+  } else {
+    if (recommendation === "SELL" || recommendation === "WEAK_SELL") {
+      alternativeStrategy = `Wait for oversold conditions (RSI < 30) for potential bounce trade.`;
+    } else if (recommendation === "HOLD") {
+      alternativeStrategy = `Monitor for breakout above resistance or improved fundamentals.`;
+    }
   }
   
   // Portfolio allocation
@@ -166,7 +379,10 @@ export const generateQuantitativeRecommendation = (
     recommendation,
     technicalVerdict,
     fundamentalVerdict,
-    rationale,
+    technicalRationale: technicalAnalysis.rationale,
+    fundamentalRationale: fundamentalAnalysis.rationale,
+    technicalInsights: technicalAnalysis.insights,
+    fundamentalInsights: fundamentalAnalysis.insights,
     alternativeStrategy,
     portfolioAllocation
   };
