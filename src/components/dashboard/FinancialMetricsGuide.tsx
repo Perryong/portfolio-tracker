@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -17,7 +16,8 @@ import {
   Shield,
   AlertCircle,
   CheckCircle,
-  Minus
+  Minus,
+  Volume2
 } from "lucide-react";
 
 const FinancialMetricsGuide = () => {
@@ -55,7 +55,7 @@ const FinancialMetricsGuide = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Historical Volatility (Annualized)</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Measures how much a stock's price fluctuates over time. Higher volatility means more price swings.
+                    Measures how much a stock's price fluctuates over time. Calculated using standard deviation of returns. Higher volatility means more price swings and increased risk.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs">0-15%</span>{getBenchmarkBadge('good')}
@@ -67,14 +67,17 @@ const FinancialMetricsGuide = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Value at Risk (VaR)</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Maximum expected loss over a given time period at a specific confidence level. VaR 95% means there's a 5% chance of losing more than this amount.
+                    Maximum expected loss over a given time period at a specific confidence level. VaR 95% means 95% confidence that losses won't exceed this amount in one day.
                   </p>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    VaR 99% provides even higher confidence but with larger loss estimates.
+                  </div>
                 </div>
 
                 <div>
                   <h4 className="font-semibold mb-2">Sharpe Ratio</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Risk-adjusted return measure. Higher is better - shows return per unit of risk taken.
+                    Risk-adjusted return measure: (Return - Risk-free Rate) / Volatility. Higher values indicate better risk-adjusted performance.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs">&gt;1.0</span>{getBenchmarkBadge('good')}
@@ -86,7 +89,7 @@ const FinancialMetricsGuide = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Maximum Drawdown</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Largest peak-to-trough decline. Shows worst-case scenario for holding period.
+                    Largest peak-to-trough decline during the analysis period. Shows the worst-case scenario for buy-and-hold investors.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="text-xs">&lt;20%</span>{getBenchmarkBadge('good')}
@@ -98,8 +101,13 @@ const FinancialMetricsGuide = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Beta</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Correlation with overall market. Beta = 1 moves with market, &gt;1 more volatile, &lt;1 less volatile.
+                    Measures correlation with overall market. Beta = 1 moves with market, &gt;1 more volatile than market, &lt;1 less volatile than market.
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-xs">0.8-1.2</span>{getBenchmarkBadge('neutral')} <span className="text-xs">(Market-like)</span>
+                    <span className="text-xs">&gt;1.5</span>{getBenchmarkBadge('poor')} <span className="text-xs">(High volatility)</span>
+                    <span className="text-xs">&lt;0.5</span>{getBenchmarkBadge('good')} <span className="text-xs">(Defensive)</span>
+                  </div>
                 </div>
               </div>
             </AccordionContent>
@@ -116,46 +124,75 @@ const FinancialMetricsGuide = () => {
                 <div>
                   <h4 className="font-semibold mb-2">RSI (Relative Strength Index)</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Momentum oscillator (0-100). Measures overbought/oversold conditions.
+                    Momentum oscillator (0-100) using 21-period calculation for reduced noise. Measures overbought/oversold conditions based on recent price changes.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="text-xs">30-70</span>{getBenchmarkBadge('good')}
+                    <span className="text-xs">30-70</span>{getBenchmarkBadge('good')} <span className="text-xs">(Balanced)</span>
                     <span className="text-xs">&gt;70</span>{getBenchmarkBadge('poor')} <span className="text-xs">(Overbought)</span>
                     <span className="text-xs">&lt;30</span>{getBenchmarkBadge('poor')} <span className="text-xs">(Oversold)</span>
                   </div>
                 </div>
 
                 <div>
+                  <h4 className="font-semibold mb-2">MACD (Moving Average Convergence Divergence)</h4>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Advanced momentum indicator with three components: MACD line (12-EMA minus 26-EMA), Signal line (9-period EMA of MACD), and Histogram (MACD minus Signal).
+                  </p>
+                  <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-1">
+                    <li><strong>MACD above Signal:</strong> Bullish momentum</li>
+                    <li><strong>MACD below Signal:</strong> Bearish momentum</li>
+                    <li><strong>Histogram:</strong> Shows momentum strength and direction changes</li>
+                    <li><strong>Zero line crossover:</strong> Trend change indication</li>
+                  </ul>
+                </div>
+
+                <div>
                   <h4 className="font-semibold mb-2">Moving Averages (SMA/EMA)</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Trend indicators. Price above MA = uptrend, below = downtrend. EMA reacts faster than SMA.
+                    Trend indicators that smooth price action. EMA (Exponential) reacts faster to recent changes than SMA (Simple). Price position relative to MAs indicates trend direction.
                   </p>
-                  <ul className="text-xs text-muted-foreground ml-4 list-disc">
-                    <li>SMA 20: Short-term trend</li>
-                    <li>SMA 50: Medium-term trend</li>
-                    <li>SMA 200: Long-term trend</li>
+                  <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-1">
+                    <li><strong>SMA/EMA 20:</strong> Short-term trend (3-4 weeks)</li>
+                    <li><strong>SMA/EMA 50:</strong> Medium-term trend (2-3 months)</li>
+                    <li><strong>SMA 200:</strong> Long-term trend (major support/resistance)</li>
                   </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Volume2 className="h-4 w-4" />
+                    VWMA (Volume Weighted Moving Average)
+                  </h4>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Price average weighted by trading volume: Sum(Price × Volume) / Sum(Volume). Gives more importance to prices with higher volume, providing better insight into institutional interest.
+                  </p>
+                  <div className="text-xs text-muted-foreground">
+                    When VWMA differs significantly from SMA, it indicates volume-driven price action.
+                  </div>
                 </div>
 
                 <div>
                   <h4 className="font-semibold mb-2">Bollinger Bands</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Volatility indicator. Price near upper band may indicate overbought, near lower band oversold.
+                    Volatility indicator with upper/lower bands at 2 standard deviations from 20-period SMA. Band width indicates volatility level.
                   </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">MACD (Moving Average Convergence Divergence)</h4>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Momentum indicator. MACD above signal line = bullish, below = bearish. Histogram shows momentum strength.
-                  </p>
+                  <ul className="text-xs text-muted-foreground ml-4 list-disc space-y-1">
+                    <li><strong>Price near upper band:</strong> Potential overbought condition</li>
+                    <li><strong>Price near lower band:</strong> Potential oversold condition</li>
+                    <li><strong>Band squeeze:</strong> Low volatility, potential breakout coming</li>
+                    <li><strong>Band expansion:</strong> High volatility period</li>
+                  </ul>
                 </div>
 
                 <div>
                   <h4 className="font-semibold mb-2">Volume Analysis</h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Higher volume confirms price movements. Volume above average suggests strong conviction in price direction.
+                    Volume confirms price movements. High volume with price movement suggests strong conviction. Volume above 20-period average indicates increased interest.
                   </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-xs">Above Average + Price Rise</span>{getBenchmarkBadge('good')}
+                    <span className="text-xs">Below Average + Price Rise</span>{getBenchmarkBadge('poor')} <span className="text-xs">(Weak move)</span>
+                  </div>
                 </div>
               </div>
             </AccordionContent>
@@ -433,7 +470,7 @@ const FinancialMetricsGuide = () => {
 
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-800">
-            <strong>Investment Tip:</strong> No single metric tells the complete story. Always consider metrics in context of the industry, company stage, and market conditions. Compare ratios with industry peers and historical performance for better insights.
+            <strong>Investment Tip:</strong> No single metric tells the complete story. Always consider metrics in context of the industry, company stage, and market conditions. Use technical indicators to time entries/exits while fundamental metrics guide long-term investment decisions.
           </p>
         </div>
       </CardContent>

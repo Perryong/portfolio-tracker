@@ -1,4 +1,3 @@
-
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,7 +9,7 @@ export function Navbar() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/"); // Redirect to home page instead of auth page
   };
 
   return (
@@ -34,7 +33,6 @@ export function Navbar() {
             <LineChart className="h-4 w-4 mr-1" />
             Markets
           </Link>
-
         </nav>
 
         <div className="flex items-center">

@@ -3,10 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { QuantitativeRecommendation } from "@/services/quantAnalysisService";
+import { QuantitativeRecommendation } from "@/types/quantitativeAnalysis";
 import { StockQuote } from "@/types";
 import { formatNumber, formatCurrency } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, Target, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, Target, Loader2, Activity, Building2 } from "lucide-react";
 
 interface QuantitativeRecommendationProps {
   recommendation: QuantitativeRecommendation;
@@ -120,57 +120,102 @@ export const QuantitativeRecommendationComponent: React.FC<QuantitativeRecommend
         </CardContent>
       </Card>
 
-      {/* Analysis Breakdown */}
+      {/* Analysis Breakdown - Now Properly Separated */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Technical Analysis */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Technical Analysis: {recommendation.technicalVerdict}
+        {/* Technical Analysis - Price & Momentum Focus */}
+        <Card className="border-blue-200">
+          <CardHeader className="bg-blue-50">
+            <CardTitle className="flex items-center gap-2 text-blue-700">
+              <Activity className="h-5 w-5" />
+              Price & Momentum Analysis: {recommendation.technicalVerdict}
             </CardTitle>
+            <p className="text-sm text-blue-600">
+              Analyzes price movements, trends, volume, and momentum indicators
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Technical Insights Summary */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium">Trend:</span>
+                <p className="text-muted-foreground">{recommendation.technicalInsights.trendDirection}</p>
+              </div>
+              <div>
+                <span className="font-medium">Momentum:</span>
+                <p className="text-muted-foreground">{recommendation.technicalInsights.momentumStrength}</p>
+              </div>
+              <div>
+                <span className="font-medium">Volume:</span>
+                <p className="text-muted-foreground">{recommendation.technicalInsights.volumeConfirmation}</p>
+              </div>
+              <div>
+                <span className="font-medium">Volatility:</span>
+                <p className="text-muted-foreground">{recommendation.technicalInsights.volatilityContext}</p>
+              </div>
+            </div>
+
+            {/* Technical Rationale */}
             <div className="space-y-3">
-              {recommendation.rationale
-                .filter(item => item.includes('❌') || item.includes('✅'))
-                .filter(item => !item.includes('🚨'))
-                .map((item, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    {item.includes('❌') ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm">{item}</span>
-                  </div>
-                ))}
+              {recommendation.technicalRationale.map((item, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  {item.includes('❌') ? (
+                    <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{item}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Fundamental Analysis */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Fundamental Analysis: {recommendation.fundamentalVerdict}
+        {/* Fundamental Analysis - Business & Valuation Focus */}
+        <Card className="border-orange-200">
+          <CardHeader className="bg-orange-50">
+            <CardTitle className="flex items-center gap-2 text-orange-700">
+              <Building2 className="h-5 w-5" />
+              Business & Valuation Analysis: {recommendation.fundamentalVerdict}
             </CardTitle>
+            <p className="text-sm text-orange-600">
+              Analyzes financial health, growth, profitability, and valuation metrics
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Fundamental Insights Summary */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="font-medium">Valuation:</span>
+                <p className="text-muted-foreground">{recommendation.fundamentalInsights.valuation}</p>
+              </div>
+              <div>
+                <span className="font-medium">Growth:</span>
+                <p className="text-muted-foreground">{recommendation.fundamentalInsights.growth}</p>
+              </div>
+              <div>
+                <span className="font-medium">Profitability:</span>
+                <p className="text-muted-foreground">{recommendation.fundamentalInsights.profitability}</p>
+              </div>
+              <div>
+                <span className="font-medium">Financial Health:</span>
+                <p className="text-muted-foreground">{recommendation.fundamentalInsights.financialHealth}</p>
+              </div>
+            </div>
+
+            {/* Fundamental Rationale */}
             <div className="space-y-3">
-              {recommendation.rationale
-                .filter(item => item.includes('🚨') || (item.includes('✅') && !item.includes('EMA') && !item.includes('MACD')))
-                .map((item, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    {item.includes('🚨') ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    )}
-                    <span className="text-sm">{item}</span>
-                  </div>
-                ))}
+              {recommendation.fundamentalRationale.map((item, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  {item.includes('🚨') ? (
+                    <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  ) : item.includes('⚠️') ? (
+                    <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{item}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
