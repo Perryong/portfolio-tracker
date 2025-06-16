@@ -1,10 +1,12 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HistoricalDataTable } from "@/components/dashboard/HistoricalDataTable";
 import { TradingViewWidget } from "@/components/dashboard/charts/TradingViewWidget";
 import StockValuations from "@/components/dashboard/StockValuations";
 import WarrenBuffettAnalysis from "@/components/dashboard/WarrenBuffettAnalysis";
+import CharlieMungerAnalysis from "@/components/dashboard/CharlieMungerAnalysis";
+import PeterLynchAnalysis from "@/components/dashboard/PeterLynchAnalysis";
+import BillAckmanAnalysis from "@/components/dashboard/BillAckmanAnalysis";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -12,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHistoricalData } from "@/hooks/useHistoricalData";
 import { useTechnicalIndicators } from "@/hooks/useTechnicalIndicators";
 import { popularStocks } from "@/services/stockService";
-import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target } from "lucide-react";
+import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building } from "lucide-react";
 import { useTheme } from "next-themes";
 import { 
   Card, 
@@ -88,6 +90,18 @@ const HistoricalData = () => {
             <TabsTrigger value="warren-buffett">
               <Target className="h-4 w-4 mr-2" />
               Warren Buffett
+            </TabsTrigger>
+            <TabsTrigger value="charlie-munger">
+              <Brain className="h-4 w-4 mr-2" />
+              Charlie Munger
+            </TabsTrigger>
+            <TabsTrigger value="peter-lynch">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Peter Lynch
+            </TabsTrigger>
+            <TabsTrigger value="bill-ackman">
+              <Building className="h-4 w-4 mr-2" />
+              Bill Ackman
             </TabsTrigger>
           </TabsList>
           
@@ -222,6 +236,18 @@ const HistoricalData = () => {
           
           <TabsContent value="warren-buffett">
             <WarrenBuffettAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="charlie-munger">
+            <CharlieMungerAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="peter-lynch">
+            <PeterLynchAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="bill-ackman">
+            <BillAckmanAnalysis />
           </TabsContent>
         </Tabs>
       </main>
