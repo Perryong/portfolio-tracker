@@ -43,10 +43,12 @@ const WarrenBuffettAnalysis = () => {
     return 'text-red-600';
   };
 
-  const getProgressColor = (value: number, threshold: number) => {
-    if (value >= threshold) return 'bg-green-500';
-    if (value >= threshold * 0.8) return 'bg-yellow-500';
-    return 'bg-red-500';
+  const getMetricIcon = (value: number, threshold: number) => {
+    return value >= threshold ? (
+      <CheckCircle className="h-4 w-4 text-green-600" />
+    ) : (
+      <XCircle className="h-4 w-4 text-red-600" />
+    );
   };
 
   return (
@@ -130,7 +132,10 @@ const WarrenBuffettAnalysis = () => {
                 {/* ROIC */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">ROIC (Return on Invested Capital)</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">ROIC</span>
+                      {getMetricIcon(buffettMetrics.roic, 0.15)}
+                    </div>
                     <span className={`font-bold ${getMetricColor(buffettMetrics.roic, 0.15)}`}>
                       {formatNumber(buffettMetrics.roic * 100)}%
                     </span>
@@ -139,15 +144,19 @@ const WarrenBuffettAnalysis = () => {
                     value={Math.min(100, (buffettMetrics.roic / 0.25) * 100)} 
                     className="h-2"
                   />
-                  <div className="text-xs text-muted-foreground">
-                    Target: {'≥'}15% (Excellent: {'≥'}20%)
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Target: ≥15%</span>
+                    <span>Score: {buffettMetrics.roicScore}/40</span>
                   </div>
                 </div>
 
                 {/* Reinvestment Rate */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">Reinvestment Rate</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Reinvestment</span>
+                      {getMetricIcon(buffettMetrics.reinvestmentRate, 0.20)}
+                    </div>
                     <span className={`font-bold ${getMetricColor(buffettMetrics.reinvestmentRate, 0.20)}`}>
                       {formatNumber(buffettMetrics.reinvestmentRate * 100)}%
                     </span>
@@ -156,15 +165,19 @@ const WarrenBuffettAnalysis = () => {
                     value={Math.min(100, (buffettMetrics.reinvestmentRate / 0.40) * 100)} 
                     className="h-2"
                   />
-                  <div className="text-xs text-muted-foreground">
-                    Target: {'≥'}20% (Strong Growth: {'≥'}30%)
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Target: ≥20%</span>
+                    <span>Score: {buffettMetrics.reinvestmentScore}/30</span>
                   </div>
                 </div>
 
                 {/* ROIIC */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">ROIIC (Return on Incremental Capital)</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">ROIIC</span>
+                      {getMetricIcon(buffettMetrics.roiic, 0.15)}
+                    </div>
                     <span className={`font-bold ${getMetricColor(buffettMetrics.roiic, 0.15)}`}>
                       {formatNumber(buffettMetrics.roiic * 100)}%
                     </span>
@@ -173,8 +186,9 @@ const WarrenBuffettAnalysis = () => {
                     value={Math.min(100, (buffettMetrics.roiic / 0.25) * 100)} 
                     className="h-2"
                   />
-                  <div className="text-xs text-muted-foreground">
-                    Target: {'≥'}15% (Exceptional: {'≥'}20%)
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Target: ≥15%</span>
+                    <span>Score: {buffettMetrics.roiicScore}/30</span>
                   </div>
                 </div>
               </div>
@@ -190,6 +204,11 @@ const WarrenBuffettAnalysis = () => {
                   </span>
                 </div>
                 <Progress value={buffettMetrics.compoundingScore} className="h-3" />
+                <div className="text-xs text-muted-foreground mt-2">
+                  {!buffettMetrics.isCompoundingMachine && buffettMetrics.compoundingScore > 60 && (
+                    "Score capped due to failed threshold requirements"
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -254,7 +273,7 @@ const WarrenBuffettAnalysis = () => {
                   <h4 className="font-semibold mb-2">🎯 ROIC</h4>
                   <p className="text-sm text-muted-foreground">
                     Measures how efficiently a company converts invested capital into profits. 
-                    Buffett looks for companies with consistently high ROIC ({'>'}15%) as they indicate 
+                    Buffett looks for companies with consistently high ROIC (&gt;15%) as they indicate 
                     a sustainable competitive advantage.
                   </p>
                 </div>
@@ -262,7 +281,7 @@ const WarrenBuffettAnalysis = () => {
                   <h4 className="font-semibold mb-2">📈 Reinvestment Rate</h4>
                   <p className="text-sm text-muted-foreground">
                     Shows what percentage of profits are reinvested back into the business for growth. 
-                    Higher rates ({'>'}20%) suggest the company has abundant profitable growth opportunities.
+                    Higher rates (&gt;20%) suggest the company has abundant profitable growth opportunities.
                   </p>
                 </div>
                 <div>

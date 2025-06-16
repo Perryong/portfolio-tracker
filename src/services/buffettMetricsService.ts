@@ -1,3 +1,4 @@
+
 import { FinancialSnapshot } from './financialDatasetsService';
 
 export interface BuffettMetrics {
@@ -6,6 +7,10 @@ export interface BuffettMetrics {
   roiic: number; // Return on Incremental Invested Capital
   isCompoundingMachine: boolean;
   compoundingScore: number;
+  // Add individual metric scores for transparency
+  roicScore: number;
+  reinvestmentScore: number;
+  roiicScore: number;
   investmentThesis: string;
   strengths: string[];
   concerns: string[];
@@ -41,8 +46,15 @@ export const calculateBuffettMetrics = (financialData: FinancialSnapshot): Buffe
 
   const isCompoundingMachine = meetsROIC && meetsReinvestment && meetsROIIC;
 
-  // Calculate compounding score (0-100)
-  const compoundingScore = calculateCompoundingScore(roic, reinvestmentRate, roiic);
+  // Calculate individual metric scores and overall compounding score
+  const { compoundingScore, roicScore, reinvestmentScore, roiicScore } = calculateCompoundingScore(
+    roic, 
+    reinvestmentRate, 
+    roiic, 
+    meetsROIC, 
+    meetsReinvestment, 
+    meetsROIIC
+  );
 
   // Generate investment thesis
   const { thesis, strengths, concerns } = generateInvestmentThesis(
@@ -59,6 +71,9 @@ export const calculateBuffettMetrics = (financialData: FinancialSnapshot): Buffe
     roiic,
     isCompoundingMachine,
     compoundingScore,
+    roicScore,
+    reinvestmentScore,
+    roiicScore,
     investmentThesis: thesis,
     strengths,
     concerns
@@ -78,14 +93,41 @@ const calculateROIIC = (data: FinancialSnapshot): number => {
   return Math.max(0, Math.min(1, roiic)); // Cap between 0-100%
 };
 
-const calculateCompoundingScore = (roic: number, reinvestmentRate: number, roiic: number): number => {
-  // Weighted scoring: ROIC (40%), Reinvestment Rate (30%), ROIIC (30%)
-  const roicScore = Math.min(100, (roic / 0.15) * 40);
-  const reinvestmentScore = Math.min(100, (reinvestmentRate / 0.20) * 30);
-  const roiicScore = Math.min(100, (roiic / 0.15) * 30);
+const calculateCompoundingScore = (
+  roic: number, 
+  reinvestmentRate: number, 
+  roiic: number,
+  meetsROIC: boolean,
+  meetsReinvestment: boolean,
+  meetsROIIC: boolean
+): { compoundingScore: number; roicScore: number; reinvestmentScore: number; roiicScore: number } => {
+  // Calculate individual scores with pass/fail logic integration
+  const roicScore = meetsROIC ? 
+    Math.min(40, (roic / 0.15) * 40) : 
+    Math.min(20, (roic / 0.15) * 40); // Cap at 50% if fails threshold
+  
+  const reinvestmentScore = meetsReinvestment ? 
+    Math.min(30, (reinvestmentRate / 0.20) * 30) : 
+    Math.min(15, (reinvestmentRate / 0.20) * 30); // Cap at 50% if fails threshold
+  
+  const roiicScore = meetsROIIC ? 
+    Math.min(30, (roiic / 0.15) * 30) : 
+    Math.min(15, (roiic / 0.15) * 30); // Cap at 50% if fails threshold
 
-  // Cap the final total at 100
-  return Math.round(Math.min(100, roicScore + reinvestmentScore + roiicScore));
+  // If any metric fails, apply a penalty to overall score
+  let compoundingScore = roicScore + reinvestmentScore + roiicScore;
+  
+  // Apply penalty if not all metrics pass
+  if (!meetsROIC || !meetsReinvestment || !meetsROIIC) {
+    compoundingScore = Math.min(75, compoundingScore); // Cap at 75 if any metric fails
+  }
+
+  return {
+    compoundingScore: Math.round(compoundingScore),
+    roicScore: Math.round(roicScore),
+    reinvestmentScore: Math.round(reinvestmentScore),
+    roiicScore: Math.round(roiicScore)
+  };
 };
 
 const generateInvestmentThesis = (
