@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
 import { Navbar } from "@/components/layout/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SP500HeatmapWidget } from "@/components/markets/SP500HeatmapWidget";
 import { HangSengHeatmapWidget } from "@/components/markets/HangSengHeatmapWidget";
+import { EconomicsCalendarWidget } from "@/components/markets/EconomicsCalendarWidget";
+import { TopStoriesWidget } from "@/components/markets/TopStoriesWidget";
+import { TickerTapeWidget } from "@/components/markets/TickerTapeWidget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EconomicsCalendarWidget } from '@/components/markets/EconomicsCalendarWidget';
-import { TopStoriesWidget } from '@/components/markets/TopStoriesWidget';
-import { TickerTapeWidget } from '@/components/markets/TickerTapeWidget';
 
 const Markets = () => {
   const [activeTab, setActiveTab] = useState("sp500");
@@ -22,6 +23,7 @@ const Markets = () => {
             View heatmaps of major global market indices and economic events
           </p>
         </div>
+        
         <div className="mb-6">
           <TickerTapeWidget />
         </div>
@@ -64,6 +66,7 @@ const Markets = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          
           <TabsContent value="economics" className="space-y-4">
             <Card>
               <CardHeader>
@@ -76,6 +79,7 @@ const Markets = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          
           <TabsContent value="topstories" className="space-y-4">
             <Card>
               <CardHeader>

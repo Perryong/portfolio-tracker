@@ -1,4 +1,5 @@
-export type AssetType = 'stock' | 'crypto';
+
+export type AssetType = 'stock' | 'crypto' | 'index' | 'fund';
 
 export interface Asset {
   id: string;
@@ -54,4 +55,38 @@ export interface APIResponse<T> {
   data?: T;
   loading: boolean;
   error: Error | null;
+}
+
+// New interfaces for index and fund analysis
+export interface IndexMetrics {
+  currentPE: number;
+  historicalPERange: { min: number; max: number; percentile25: number; percentile75: number };
+  cape: number;
+  earningsYield: number;
+  treasuryYield: number;
+  marketCapToGDP: number;
+  sectorBreakdown: { sector: string; weight: number }[];
+  sentiment: {
+    vixLevel: number;
+    putCallRatio: number;
+    fearGreedIndex: number;
+  };
+}
+
+export interface FundMetrics {
+  navPremiumDiscount: number;
+  expenseRatio: number;
+  topHoldings: { symbol: string; name: string; weight: number }[];
+  sectorBreakdown: { sector: string; weight: number }[];
+  geographicExposure: { region: string; weight: number }[];
+  performanceVsBenchmark: {
+    oneYear: number;
+    threeYear: number;
+    fiveYear: number;
+  };
+  riskMetrics: {
+    beta: number;
+    sharpeRatio: number;
+    maxDrawdown: number;
+  };
 }

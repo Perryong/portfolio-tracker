@@ -74,13 +74,7 @@ export const TradingViewWidget = memo(({
           hide_volume: false,
           details: true,
           hotlist: true,
-          calendar: true,          
-          compareSymbols: [
-            {
-              "symbol": "MARKETSCOM:SPY",
-              "position": "NewPriceScale"
-            }
-          ],
+          calendar: true,
           drawings_access: { type: 'rectangle', tools: [{ name: "rectangle" }] },
           overrides: {
             "mainSeriesProperties.candleStyle.wickUpColor": colors.wickUpColor,

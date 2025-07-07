@@ -7,6 +7,11 @@ import WarrenBuffettAnalysis from "@/components/dashboard/WarrenBuffettAnalysis"
 import CharlieMungerAnalysis from "@/components/dashboard/CharlieMungerAnalysis";
 import PeterLynchAnalysis from "@/components/dashboard/PeterLynchAnalysis";
 import BillAckmanAnalysis from "@/components/dashboard/BillAckmanAnalysis";
+import DCFAnalysis from "@/components/dashboard/DCFAnalysis";
+import MoatAnalysis from "@/components/dashboard/MoatAnalysis";
+import SummaryAnalysis from "@/components/dashboard/SummaryAnalysis";
+import IndexValuations from "@/components/dashboard/IndexValuations";
+import FundValuations from "@/components/dashboard/FundValuations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -14,7 +19,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHistoricalData } from "@/hooks/useHistoricalData";
 import { useTechnicalIndicators } from "@/hooks/useTechnicalIndicators";
 import { popularStocks } from "@/services/stockService";
-import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building } from "lucide-react";
+import { classifyAsset, getPopularAssetsByType } from "@/services/assetClassificationService";
+import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building, BarChart3, DollarSign, PieChart, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
 import { 
   Card, 
@@ -29,7 +35,7 @@ const HistoricalData = () => {
   const [symbol, setSymbol] = useState<string>("AAPL");
   const [inputSymbol, setInputSymbol] = useState<string>("AAPL");
   const [isPriceHistoryExpanded, setIsPriceHistoryExpanded] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<string>("charts");
+  const [activeTab, setActiveTab] = useState<string>("summary");
   const { theme } = useTheme();
   
   const { 
@@ -62,6 +68,10 @@ const HistoricalData = () => {
     }
   };
 
+  // Classify current symbol to determine which tabs to show
+  const assetClassification = classifyAsset(symbol);
+  const popularETFs = getPopularAssetsByType('fund').slice(0, 5);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -76,16 +86,36 @@ const HistoricalData = () => {
         </div>
         
         <Tabs
-          defaultValue="charts"
+          defaultValue="summary"
           value={activeTab}
           onValueChange={setActiveTab}
           className="space-y-4"
         >
           <TabsList>
+            <TabsTrigger value="summary">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Summary
+            </TabsTrigger>
             <TabsTrigger value="charts">Charts & Technical</TabsTrigger>
             <TabsTrigger value="valuations">
               <Calculator className="h-4 w-4 mr-2" />
-              Valuations
+              Stock Valuations
+            </TabsTrigger>
+            <TabsTrigger value="index-analysis">
+              <Target className="h-4 w-4 mr-2" />
+              Index Analysis
+            </TabsTrigger>
+            <TabsTrigger value="fund-analysis">
+              <PieChart className="h-4 w-4 mr-2" />
+              Fund Analysis
+            </TabsTrigger>
+            <TabsTrigger value="dcf-analysis">
+              <DollarSign className="h-4 w-4 mr-2" />
+              DCF Analysis
+            </TabsTrigger>
+            <TabsTrigger value="moat-analysis">
+              <Shield className="h-4 w-4 mr-2" />
+              MOAT
             </TabsTrigger>
             <TabsTrigger value="warren-buffett">
               <Target className="h-4 w-4 mr-2" />
@@ -104,6 +134,10 @@ const HistoricalData = () => {
               Bill Ackman
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="summary">
+            <SummaryAnalysis />
+          </TabsContent>
           
           <TabsContent value="charts" className="space-y-6">
             {/* Search Controls */}
@@ -145,28 +179,48 @@ const HistoricalData = () => {
                   </div>
                 </div>
                 
-                <div className="mt-4">
-                  <p className="text-sm mb-2">Popular Stocks:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {popularStocks.map((stock) => (
-                      <Button
-                        key={stock.ticker}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setInputSymbol(stock.ticker);
-                          setSymbol(stock.ticker);
-                        }}
-                      >
-                        {stock.ticker}
-                      </Button>
-                    ))}
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <p className="text-sm mb-2">Popular Stocks:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {popularStocks.map((stock) => (
+                        <Button
+                          key={stock.ticker}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setInputSymbol(stock.ticker);
+                            setSymbol(stock.ticker);
+                          }}
+                        >
+                          {stock.ticker}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm mb-2">Popular ETFs:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {popularETFs.map((etf) => (
+                        <Button
+                          key={etf.ticker}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setInputSymbol(etf.ticker);
+                            setSymbol(etf.ticker);
+                          }}
+                        >
+                          {etf.ticker}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
             
-            {/* Technical Indicator Selector */}
             <div>
               <TechnicalIndicatorSelector 
                 indicators={indicators} 
@@ -175,7 +229,6 @@ const HistoricalData = () => {
               />
             </div>
             
-            {/* TradingView Widget */}
             <div>
               <Card>
                 <CardHeader>
@@ -196,7 +249,6 @@ const HistoricalData = () => {
               </Card>
             </div>
             
-            {/* Expandable Data Table */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold">Price History</h3>
@@ -232,6 +284,22 @@ const HistoricalData = () => {
           
           <TabsContent value="valuations">
             <StockValuations />
+          </TabsContent>
+          
+          <TabsContent value="index-analysis">
+            <IndexValuations />
+          </TabsContent>
+          
+          <TabsContent value="fund-analysis">
+            <FundValuations />
+          </TabsContent>
+          
+          <TabsContent value="dcf-analysis">
+            <DCFAnalysis />
+          </TabsContent>
+          
+          <TabsContent value="moat-analysis">
+            <MoatAnalysis />
           </TabsContent>
           
           <TabsContent value="warren-buffett">

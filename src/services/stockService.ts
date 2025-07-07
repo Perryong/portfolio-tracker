@@ -144,7 +144,22 @@ export const popularStocks = [
   { ticker: "TSLA", name: "Tesla, Inc." },
   { ticker: "NVDA", name: "NVIDIA Corporation" },
   { ticker: "NFLX", name: "Netflix, Inc." },
-  { ticker: "AMD", name: "Advanced Micro Devices, Inc." },
-  { ticker: "SPY", name: "SPDR S&P 500 ETF Trust" },
-  { ticker: "VOO", name: "Vanguard S&P 500 ETF" },
+  { ticker: "AMD", name: "Advanced Micro Devices, Inc." }
+];
+
+export const popularIndicesAndETFs = [
+  // Major Indices
+  { ticker: "^GSPC", name: "S&P 500 Index", type: "index" },
+  { ticker: "^IXIC", name: "NASDAQ Composite", type: "index" },
+  { ticker: "^DJI", name: "Dow Jones Industrial Average", type: "index" },
+  
+  // Popular ETFs
+  { ticker: "SPY", name: "SPDR S&P 500 ETF Trust", type: "etf" },
+  { ticker: "VOO", name: "Vanguard S&P 500 ETF", type: "etf" },
+  { ticker: "QQQ", name: "Invesco QQQ ETF", type: "etf" },
+  { ticker: "VTI", name: "Vanguard Total Stock Market ETF", type: "etf" },
+  { ticker: "VEA", name: "Vanguard Developed Markets ETF", type: "etf" },
+  
+  // Specialty Funds
+  { ticker: "FUNDSMITH", name: "Fundsmith Equity Fund", type: "fund" }
 ];

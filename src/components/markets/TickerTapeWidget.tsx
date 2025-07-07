@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, memo } from 'react';
 
 export const TickerTapeWidget = memo(() => {

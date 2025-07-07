@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AssetWithPrice } from '@/types';
 import { formatCurrency, isPositive, getChangeColor } from '@/lib/utils';
-import { usePortfolioHistory, TimeframeOption  } from '@/hooks/usePortfolioHistory';
+import { usePortfolioHistory, TimeframeOption } from '@/hooks/usePortfolioHistory';
 import { Button } from '@/components/ui/button';
 
 interface PnLChartProps {
@@ -43,7 +44,7 @@ export function PnLChart({
   
   const chartOptions = {
     chart: {
-      type: 'area',
+      type: 'area' as const,
       height: 350,
       toolbar: {
         show: false
@@ -54,12 +55,12 @@ export function PnLChart({
       enabled: false
     },
     stroke: {
-      curve: 'smooth',
+      curve: 'smooth' as const,
       width: 2,
     },
     title: {
       text: 'Portfolio Value History',
-      align: 'left',
+      align: 'left' as const,
       style: {
         fontSize: '16px',
         fontWeight: 'bold'

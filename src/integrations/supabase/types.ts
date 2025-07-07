@@ -45,6 +45,30 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_history: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

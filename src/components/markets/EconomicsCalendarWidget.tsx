@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, memo } from 'react';
 
 export const EconomicsCalendarWidget = memo(() => {
@@ -18,7 +19,7 @@ export const EconomicsCalendarWidget = memo(() => {
         "height": "100%",
         "locale": "en",
         "importanceFilter": "-1,0,1",
-        "countryFilter": "cn,fr,de,in,jp,gb,us,eu"
+        "countryFilter": "ar,au,br,ca,cn,fr,de,in,id,it,jp,kr,mx,ru,sa,tr,gb,us,eu"
       }`;
     
     container.current.appendChild(script);
