@@ -43,7 +43,7 @@ const IndexValuations = () => {
     }
   };
 
-  const popularETFs = getPopularAssetsByType('fund').slice(0, 5);
+  const popularETFs = getPopularAssetsByType('fund'); // Remove the slice limit
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C', '#8DD1E1', '#D084D0'];
 
@@ -54,6 +54,17 @@ const IndexValuations = () => {
       default: return 'text-yellow-600 bg-yellow-100';
     }
   };
+
+  // Group ETFs by category for better display
+  const groupedETFs = popularETFs.reduce((acc, etf) => {
+    const category = etf.category.includes('Bond') ? 'Bond ETFs' :
+                    etf.category.includes('International') || etf.category.includes('Emerging') ? 'International ETFs' :
+                    etf.category.includes('Commodity') ? 'Specialty ETFs' : 'US Equity ETFs';
+    
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(etf);
+    return acc;
+  }, {} as Record<string, typeof popularETFs>);
 
   return (
     <div className="space-y-6">
@@ -83,23 +94,28 @@ const IndexValuations = () => {
             </Button>
           </div>
           
-          <div>
-            <p className="text-sm font-medium mb-2">Popular ETFs:</p>
-            <div className="flex flex-wrap gap-2">
-              {popularETFs.map((etf) => (
-                <Button
-                  key={etf.ticker}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setInputSymbol(etf.ticker);
-                    setSymbol(etf.ticker);
-                  }}
-                >
-                  {etf.ticker}
-                </Button>
-              ))}
-            </div>
+          <div className="space-y-4">
+            {Object.entries(groupedETFs).map(([category, etfs]) => (
+              <div key={category}>
+                <p className="text-sm font-medium mb-2">{category}:</p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {etfs.map((etf) => (
+                    <Button
+                      key={etf.ticker}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setInputSymbol(etf.ticker);
+                        setSymbol(etf.ticker);
+                      }}
+                      title={etf.name}
+                    >
+                      {etf.ticker}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
