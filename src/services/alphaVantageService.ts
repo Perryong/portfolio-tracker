@@ -159,41 +159,7 @@ export const fetchHistoricalStockData = async (
     } catch (seekingAlphaError) {
       console.error(`Both APIs failed for ${symbol}:`, seekingAlphaError);
       toast.error(`Failed to fetch data from both Alpha Vantage and Seeking Alpha for ${symbol}`);
-      throw new Error(`All data sources failed for ${symbol}`);
+      throw new Error(`All data sources failed for ${symbol}. Please check the symbol and try again later.`);
     }
   }
-};
-
-/**
- * Generate mock historical data for testing purposes (kept for extreme fallback)
- */
-const mockHistoricalData = (symbol: string): TimeSeriesDataPoint[] => {
-  const basePrice = symbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 1000 + 50;
-  const volatility = (symbol.length % 5) + 1;
-  const data: TimeSeriesDataPoint[] = [];
-  
-  const today = new Date();
-  
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(today.getDate() - i);
-    const dateString = date.toISOString().split('T')[0];
-    
-    const dayOffset = Math.sin(i / 5) * volatility;
-    const open = basePrice + dayOffset + Math.random() * volatility;
-    const close = open + (Math.random() - 0.5) * volatility * 2;
-    const high = Math.max(open, close) + Math.random() * volatility;
-    const low = Math.min(open, close) - Math.random() * volatility;
-    
-    data.push({
-      date: dateString,
-      open: parseFloat(open.toFixed(2)),
-      high: parseFloat(high.toFixed(2)),
-      low: parseFloat(low.toFixed(2)),
-      close: parseFloat(close.toFixed(2)),
-      volume: Math.floor(Math.random() * 1000000) + 500000,
-    });
-  }
-  
-  return data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 };

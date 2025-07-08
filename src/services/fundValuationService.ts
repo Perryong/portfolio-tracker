@@ -21,57 +21,6 @@ export interface FundValuationResults {
   };
 }
 
-// Mock data for popular ETFs only - FUNDSMITH removed
-const MOCK_FUND_DATA = {
-  'SPY': {
-    name: 'SPDR S&P 500 ETF',
-    nav: 485.20,
-    expenseRatio: 0.0945,
-    topHoldings: [
-      { symbol: 'AAPL', name: 'Apple Inc.', weight: 7.2 },
-      { symbol: 'MSFT', name: 'Microsoft Corp.', weight: 6.8 },
-      { symbol: 'AMZN', name: 'Amazon.com Inc.', weight: 3.4 },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', weight: 3.1 },
-      { symbol: 'GOOGL', name: 'Alphabet Inc.', weight: 2.9 }
-    ],
-    sectorBreakdown: [
-      { sector: 'Technology', weight: 28.5 },
-      { sector: 'Healthcare', weight: 13.2 },
-      { sector: 'Financials', weight: 11.8 },
-      { sector: 'Consumer Discretionary', weight: 10.4 },
-      { sector: 'Communication Services', weight: 8.9 }
-    ],
-    geographicExposure: [
-      { region: 'United States', weight: 100.0 }
-    ],
-    performanceVsBenchmark: { oneYear: 0.02, threeYear: -0.01, fiveYear: 0.03 },
-    riskMetrics: { beta: 1.0, sharpeRatio: 0.65, maxDrawdown: -23.9 }
-  },
-  'QQQ': {
-    name: 'Invesco QQQ Trust',
-    nav: 402.15,
-    expenseRatio: 0.20,
-    topHoldings: [
-      { symbol: 'AAPL', name: 'Apple Inc.', weight: 8.9 },
-      { symbol: 'MSFT', name: 'Microsoft Corp.', weight: 8.1 },
-      { symbol: 'AMZN', name: 'Amazon.com Inc.', weight: 5.2 },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', weight: 4.8 },
-      { symbol: 'META', name: 'Meta Platforms Inc.', weight: 4.1 }
-    ],
-    sectorBreakdown: [
-      { sector: 'Technology', weight: 52.3 },
-      { sector: 'Consumer Discretionary', weight: 15.2 },
-      { sector: 'Communication Services', weight: 12.8 },
-      { sector: 'Healthcare', weight: 8.4 }
-    ],
-    geographicExposure: [
-      { region: 'United States', weight: 100.0 }
-    ],
-    performanceVsBenchmark: { oneYear: 0.15, threeYear: 0.08, fiveYear: 0.12 },
-    riskMetrics: { beta: 1.15, sharpeRatio: 0.72, maxDrawdown: -32.4 }
-  }
-};
-
 export const analyzeFundValuation = async (symbol: string): Promise<FundValuationResults> => {
   console.log(`Analyzing fund valuation for: ${symbol}`);
   
@@ -79,31 +28,16 @@ export const analyzeFundValuation = async (symbol: string): Promise<FundValuatio
   const historicalData = await fetchHistoricalStockData(symbol);
   const currentPrice = historicalData[0]?.close || 0;
   
-  let fundData;
+  if (!currentPrice) {
+    throw new Error(`Unable to fetch price data for ${symbol}. Please try again later.`);
+  }
+  
   let fundName = `${symbol} Fund`;
   let nav = currentPrice;
   let metrics: FundMetrics;
   
-  // Check if it's a known ETF with mock data
-  if (MOCK_FUND_DATA[symbol.toUpperCase()]) {
-    fundData = MOCK_FUND_DATA[symbol.toUpperCase()];
-    fundName = fundData.name;
-    nav = fundData.nav;
-    
-    // Calculate NAV premium/discount
-    const navPremiumDiscount = ((currentPrice - nav) / nav) * 100;
-    
-    metrics = {
-      navPremiumDiscount,
-      expenseRatio: fundData.expenseRatio,
-      topHoldings: fundData.topHoldings,
-      sectorBreakdown: fundData.sectorBreakdown,
-      geographicExposure: fundData.geographicExposure,
-      performanceVsBenchmark: fundData.performanceVsBenchmark,
-      riskMetrics: fundData.riskMetrics
-    };
-  } else {
-    // Try to fetch from Seeking Alpha API for mutual funds
+  try {
+    // Try to fetch from Seeking Alpha API for fund data
     console.log(`Fetching dynamic fund data for: ${symbol}`);
     const seekingAlphaData = await fetchSeekingAlphaFundData(symbol);
     
@@ -112,26 +46,11 @@ export const analyzeFundValuation = async (symbol: string): Promise<FundValuatio
       nav = seekingAlphaData.nav || currentPrice;
       metrics = transformSeekingAlphaToFundMetrics(seekingAlphaData, currentPrice);
     } else {
-      // Fallback to generic fund data
-      console.log(`Using fallback data for: ${symbol}`);
-      const navPremiumDiscount = 0; // Assume trading at NAV
-      
-      metrics = {
-        navPremiumDiscount,
-        expenseRatio: 0.75, // Typical mutual fund expense ratio
-        topHoldings: [
-          { symbol: 'N/A', name: 'Fund holdings not available', weight: 0 }
-        ],
-        sectorBreakdown: [
-          { sector: 'Mixed Assets', weight: 100 }
-        ],
-        geographicExposure: [
-          { region: 'United States', weight: 100 }
-        ],
-        performanceVsBenchmark: { oneYear: 0, threeYear: 0, fiveYear: 0 },
-        riskMetrics: { beta: 1.0, sharpeRatio: 0.5, maxDrawdown: -20.0 }
-      };
+      throw new Error('Fund data not available from API');
     }
+  } catch (error) {
+    console.error(`Error fetching fund data for ${symbol}:`, error);
+    throw new Error(`Unable to fetch detailed fund information for ${symbol}. This may be because the symbol is not supported or the data provider is temporarily unavailable.`);
   }
   
   // Calculate valuation assessment
@@ -140,7 +59,7 @@ export const analyzeFundValuation = async (symbol: string): Promise<FundValuatio
   // Calculate comparisons
   const comparison = {
     vsIndex: metrics.performanceVsBenchmark.fiveYear * 100,
-    vsCategory: 2.1, // Mock category outperformance
+    vsCategory: 0, // Would need category data from API
     expenseImpact: calculateExpenseImpact(metrics.expenseRatio)
   };
   
