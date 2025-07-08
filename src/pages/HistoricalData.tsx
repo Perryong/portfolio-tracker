@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { HistoricalDataTable } from "@/components/dashboard/HistoricalDataTable";
@@ -11,7 +12,6 @@ import DCFAnalysis from "@/components/dashboard/DCFAnalysis";
 import MoatAnalysis from "@/components/dashboard/MoatAnalysis";
 import SummaryAnalysis from "@/components/dashboard/SummaryAnalysis";
 import IndexValuations from "@/components/dashboard/IndexValuations";
-import FundValuations from "@/components/dashboard/FundValuations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -20,7 +20,7 @@ import { useHistoricalData } from "@/hooks/useHistoricalData";
 import { useTechnicalIndicators } from "@/hooks/useTechnicalIndicators";
 import { popularStocks } from "@/services/stockService";
 import { classifyAsset, getPopularAssetsByType } from "@/services/assetClassificationService";
-import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building, BarChart3, DollarSign, PieChart, Shield } from "lucide-react";
+import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building, BarChart3, DollarSign, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
 import { 
   Card, 
@@ -104,10 +104,6 @@ const HistoricalData = () => {
             <TabsTrigger value="index-analysis">
               <Target className="h-4 w-4 mr-2" />
               Index Analysis
-            </TabsTrigger>
-            <TabsTrigger value="fund-analysis">
-              <PieChart className="h-4 w-4 mr-2" />
-              Fund Analysis
             </TabsTrigger>
             <TabsTrigger value="dcf-analysis">
               <DollarSign className="h-4 w-4 mr-2" />
@@ -288,10 +284,6 @@ const HistoricalData = () => {
           
           <TabsContent value="index-analysis">
             <IndexValuations />
-          </TabsContent>
-          
-          <TabsContent value="fund-analysis">
-            <FundValuations />
           </TabsContent>
           
           <TabsContent value="dcf-analysis">
