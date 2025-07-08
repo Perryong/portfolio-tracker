@@ -18,8 +18,16 @@ const INDEX_SYMBOLS = {
   'QQQ': { name: 'Invesco QQQ ETF', category: 'US Technology ETF' },
   'VTI': { name: 'Vanguard Total Stock Market ETF', category: 'US Total Market ETF' },
   'VOO': { name: 'Vanguard S&P 500 ETF', category: 'US Large Cap ETF' },
+  'IVV': { name: 'iShares Core S&P 500 ETF', category: 'US Large Cap ETF' },
   'VEA': { name: 'Vanguard Developed Markets ETF', category: 'International Developed ETF' },
-  'VWO': { name: 'Vanguard Emerging Markets ETF', category: 'Emerging Markets ETF' }
+  'VWO': { name: 'Vanguard Emerging Markets ETF', category: 'Emerging Markets ETF' },
+  'IWM': { name: 'iShares Russell 2000 ETF', category: 'US Small Cap ETF' },
+  'EFA': { name: 'iShares MSCI EAFE ETF', category: 'International Developed ETF' },
+  'IEFA': { name: 'iShares Core MSCI EAFE IMI Index ETF', category: 'International Developed ETF' },
+  'AGG': { name: 'iShares Core US Aggregate Bond ETF', category: 'Bond ETF' },
+  'BND': { name: 'Vanguard Total Bond Market ETF', category: 'Bond ETF' },
+  'GLD': { name: 'SPDR Gold Shares', category: 'Commodity ETF' },
+  'TLT': { name: 'iShares 20+ Year Treasury Bond ETF', category: 'Bond ETF' }
 };
 
 // Fund symbols (ETFs and mutual funds) - FUNDSMITH removed
