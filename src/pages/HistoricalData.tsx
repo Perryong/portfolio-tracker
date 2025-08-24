@@ -22,6 +22,7 @@ import { popularStocks } from "@/services/stockService";
 import { classifyAsset, getPopularAssetsByType } from "@/services/assetClassificationService";
 import { RefreshCw, Search, ChevronDown, ChevronUp, Calculator, Target, Brain, TrendingUp, Building, BarChart3, DollarSign, Shield } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Card, 
   CardContent, 
@@ -37,6 +38,7 @@ const HistoricalData = () => {
   const [isPriceHistoryExpanded, setIsPriceHistoryExpanded] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("summary");
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   
   const { 
     historicalData, 
@@ -96,7 +98,7 @@ const HistoricalData = () => {
               <BarChart3 className="h-4 w-4 mr-2" />
               Summary
             </TabsTrigger>
-            <TabsTrigger value="charts">Charts & Technical</TabsTrigger>
+            <TabsTrigger value="charts">Charts</TabsTrigger>
             <TabsTrigger value="valuations">
               <Calculator className="h-4 w-4 mr-2" />
               Stock Valuations
@@ -231,11 +233,11 @@ const HistoricalData = () => {
                   <CardTitle>TradingView Chart: {symbol}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[500px]">
+                  <div className="h-[400px] md:h-[500px]">
                     <TradingViewWidget 
                       symbol={symbol} 
                       theme={theme === 'dark' ? 'dark' : 'light'} 
-                      height={500}
+                      height={isMobile ? 400 : 500}
                       studies={studies}
                       studyOverrides={studyOverrides}
                       historicalData={historicalData}
