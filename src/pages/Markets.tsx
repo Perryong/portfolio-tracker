@@ -47,7 +47,7 @@ const Markets = () => {
                 <CardTitle>S&P 500 Market Heatmap</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[600px] w-full">
+                <div className="h-[400px] sm:h-[500px] md:h-[600px] w-full">
                   <SP500HeatmapWidget />
                 </div>
               </CardContent>
@@ -60,7 +60,7 @@ const Markets = () => {
                 <CardTitle>Hang Seng Market Heatmap</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[600px] w-full">
+                <div className="h-[400px] sm:h-[500px] md:h-[600px] w-full">
                   <HangSengHeatmapWidget />
                 </div>
               </CardContent>
@@ -73,7 +73,7 @@ const Markets = () => {
                 <CardTitle>Economic Events Calendar</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[600px] w-full">
+                <div className="h-[400px] sm:h-[500px] md:h-[600px] w-full">
                   <EconomicsCalendarWidget />
                 </div>
               </CardContent>
@@ -86,7 +86,7 @@ const Markets = () => {
                 <CardTitle>Market Top Stories</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[600px] w-full">
+                <div className="h-[400px] sm:h-[500px] md:h-[600px] w-full">
                   <TopStoriesWidget />
                 </div>
               </CardContent>
